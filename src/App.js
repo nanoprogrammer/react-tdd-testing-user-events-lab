@@ -1,4 +1,46 @@
+import React, { useState } from 'react';
+
 function App() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    interests: {
+      coding: false,
+      design: false,
+      writing: false,
+    },
+  });
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === 'checkbox') {
+      setFormData((prevData) => ({
+        ...prevData,
+        interests: {
+          ...prevData.interests,
+          [name]: checked,
+        },
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
+  const { name, email, interests } = formData;
+  const interestList = Object.entries(interests)
+    .filter(([, value]) => value)
+    .map(([key]) => key)
+    .join(', ');
+
   return (
     <main>
       <h1>Hi, I'm (your name)</h1>
@@ -18,6 +60,66 @@ function App() {
         <a href="https://github.com">GitHub</a>
         <a href="https://linkedin.com">LinkedIn</a>
       </div>
+
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="name">Name:</label>
+          <input
+            id="name"
+            type="text"
+            name="name"
+            value={name}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <label htmlFor="email">Email:</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            value={email}
+            onChange={handleChange}
+          />
+        </div>
+        <fieldset>
+          <legend>Interests:</legend>
+          <label>
+            <input
+              type="checkbox"
+              name="coding"
+              checked={interests.coding}
+              onChange={handleChange}
+            />
+            Coding
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="design"
+              checked={interests.design}
+              onChange={handleChange}
+            />
+            Design
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="writing"
+              checked={interests.writing}
+              onChange={handleChange}
+            />
+            Writing
+          </label>
+        </fieldset>
+        <button type="submit">Submit</button>
+      </form>
+
+      {submitted && (
+        <p>
+          Thank you for signing up, {name}! We have received your interest in {interestList}.
+        </p>
+      )}
     </main>
   );
 }

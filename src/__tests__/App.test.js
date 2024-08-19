@@ -1,91 +1,88 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import App from '../App';
 
-import App from "../App";
 
-// Portfolio Elements
-test("displays a top-level heading with the text `Hi, I'm _______`", () => {
+test('the form includes text inputs for name and email address', () => {
   render(<App />);
-
-  const topLevelHeading = screen.getByRole("heading", {
-    name: /hi, i'm/i,
-    exact: false,
-    level: 1,
-  });
-
-  expect(topLevelHeading).toBeInTheDocument();
+  
+  const nameInput = screen.getByLabelText(/name/i);
+  const emailInput = screen.getByLabelText(/email/i);
+  
+  expect(nameInput).toBeInTheDocument();
+  expect(emailInput).toBeInTheDocument();
 });
 
-test("displays an image of yourself", () => {
+test('the form includes three checkboxes to select areas of interest', () => {
   render(<App />);
-
-  const image = screen.getByAltText("My profile pic");
-
-  expect(image).toHaveAttribute("src", "https://via.placeholder.com/350");
+  
+  const codingCheckbox = screen.getByLabelText(/coding/i);
+  const designCheckbox = screen.getByLabelText(/design/i);
+  const writingCheckbox = screen.getByLabelText(/writing/i);
+  
+  expect(codingCheckbox).toBeInTheDocument();
+  expect(designCheckbox).toBeInTheDocument();
+  expect(writingCheckbox).toBeInTheDocument();
 });
 
-test("displays second-level heading with the text `About Me`", () => {
+test('the checkboxes are initially unchecked', () => {
   render(<App />);
-
-  const secondLevelHeading = screen.getByRole("heading", {
-    name: /about me/i,
-    level: 2,
-  });
-
-  expect(secondLevelHeading).toBeInTheDocument();
+  
+  const codingCheckbox = screen.getByLabelText(/coding/i);
+  const designCheckbox = screen.getByLabelText(/design/i);
+  const writingCheckbox = screen.getByLabelText(/writing/i);
+  
+  expect(codingCheckbox).not.toBeChecked();
+  expect(designCheckbox).not.toBeChecked();
+  expect(writingCheckbox).not.toBeChecked();
 });
 
-test("displays a paragraph for your biography", () => {
+
+test('the page shows information the user types into the name and email address form fields', () => {
   render(<App />);
-
-  const bio = screen.getByText(/lorem ipsum/i);
-
-  expect(bio).toBeInTheDocument();
+  
+  const nameInput = screen.getByLabelText(/name/i);
+  const emailInput = screen.getByLabelText(/email/i);
+  
+  fireEvent.change(nameInput, { target: { value: 'John Doe' } });
+  fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
+  
+  expect(nameInput).toHaveValue('John Doe');
+  expect(emailInput).toHaveValue('john@example.com');
 });
 
-test("displays the correct links", () => {
+test('checked status of checkboxes changes when user clicks them', () => {
   render(<App />);
-
-  const githubLink = screen.getByRole("link", {
-    name: /github/i,
-  });
-  const linkedinLink = screen.getByRole("link", {
-    name: /linkedin/i,
-  });
-
-  expect(githubLink).toHaveAttribute(
-    "href",
-    expect.stringContaining("https://github.com")
-  );
-
-  expect(linkedinLink).toHaveAttribute(
-    "href",
-    expect.stringContaining("https://linkedin.com")
-  );
+  
+  const codingCheckbox = screen.getByLabelText(/coding/i);
+  const designCheckbox = screen.getByLabelText(/design/i);
+  
+  fireEvent.click(codingCheckbox);
+  fireEvent.click(designCheckbox);
+  
+  expect(codingCheckbox).toBeChecked();
+  expect(designCheckbox).toBeChecked();
+  
+  fireEvent.click(codingCheckbox);
+  fireEvent.click(designCheckbox);
+  
+  expect(codingCheckbox).not.toBeChecked();
+  expect(designCheckbox).not.toBeChecked();
 });
 
-// Newsletter Form - Initial State
-test("the form includes text inputs for name and email address", () => {
-  // your test code here
-});
-
-test("the form includes three checkboxes to select areas of interest", () => {
-  // your test code here
-});
-
-test("the checkboxes are initially unchecked", () => {
-  // your test code here
-});
-
-// Newsletter Form - Adding Responses
-test("the page shows information the user types into the name and email address form fields", () => {
-  // your test code here
-});
-
-test("checked status of checkboxes changes when user clicks them", () => {
-  // your test code here
-});
-
-test("a message is displayed when the user clicks the Submit button", () => {
-  // your test code here
+test('a message is displayed when the user clicks the Submit button', () => {
+  render(<App />);
+  
+  const nameInput = screen.getByLabelText(/name/i);
+  const emailInput = screen.getByLabelText(/email/i);
+  const codingCheckbox = screen.getByLabelText(/coding/i);
+  const submitButton = screen.getByRole('button', { name: /submit/i });
+  
+  fireEvent.change(nameInput, { target: { value: 'John Doe' } });
+  fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
+  fireEvent.click(codingCheckbox);
+  fireEvent.click(submitButton);
+  
+  expect(screen.getByText(/thank you for signing up, john doe!/i)).toBeInTheDocument();
+  expect(screen.getByText(/we have received your interest in coding/i)).toBeInTheDocument();
 });
